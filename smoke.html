@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Smoke Detection</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      background: linear-gradient(to bottom, #3e3e3e, #121212);
+      color: white;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #1a1a1a;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.4);
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #f0a500;
+      text-align: center;
+    }
+
+    .sidebar button {
+      background-color: transparent;
+      border: 1px solid #444;
+      color: white;
+      font-size: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-align: left;
+    }
+
+    .sidebar button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .main-content {
+      margin-left: 250px;
+      flex-grow: 1;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-shadow: 1px 1px 5px black;
+    }
+
+    video {
+      width: 80%;
+      max-width: 700px;
+      border-radius: 12px;
+      border: 3px solid #f0a500;
+      margin-bottom: 20px;
+    }
+
+    .notification {
+      margin-top: 10px;
+      padding: 12px 18px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      display: none;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+    }
+
+    .notification.danger {
+      background-color: #ff4444;
+      color: white;
+    }
+
+    .notification.safe {
+      background-color: #44c767;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        flex-direction: row;
+        justify-content: space-around;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      video {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2><i class="fas fa-fire-smoke"></i> Smoke Menu</h2>
+    <button onclick="location.href='smoke.html'"><i class="fas fa-video"></i> Live Smoke Detection</button>
+    <button onclick="location.href='upload.html'"><i class="fas fa-image"></i> Upload Image Detection</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h1><i class="fas fa-video"></i> Live Smoke Detection</h1>
+    <video id="liveVideo" autoplay muted></video>
+    <div class="notification" id="notificationBox">Initializing...</div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    const video = document.getElementById('liveVideo');
+    const notificationBox = document.getElementById('notificationBox');
+
+    // Access camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+        simulateSmokeDetection();
+      })
+      .catch(error => {
+        notificationBox.style.display = 'block';
+        notificationBox.className = 'notification danger';
+        notificationBox.textContent = 'Camera access denied!';
+      });
+
+    function simulateSmokeDetection() {
+      setInterval(() => {
+        const smokeDetected = Math.random() < 0.5; // 50% chance
+        notificationBox.style.display = 'block';
+        if (smokeDetected) {
+          notificationBox.textContent = '🚨 Smoke Detected!';
+          notificationBox.className = 'notification danger';
+        } else {
+          notificationBox.textContent = '✅ No Smoke Detected.';
+          notificationBox.className = 'notification safe';
+        }
+      }, 4000); // Every 4 seconds
+
+
+      function simulateSmokeDetection() {
+        setInterval(() => {
+          const smokeDetected = Math.random() < 0.5; // 50% chance
+          notificationBox.style.display = 'block';
+      
+          if (smokeDetected) {
+            notificationBox.textContent = '🚨 Smoke Detected!';
+            notificationBox.className = 'notification danger';
+          } else {
+            notificationBox.textContent = '✅ No Smoke Detected.';
+            notificationBox.className = 'notification safe';
+          }
+        }, 4000); // Every 4 seconds
+      }
+      
+    }
+
+
+
+  </script>
+
+</body>
+</html>

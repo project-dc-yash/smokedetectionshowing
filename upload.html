@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Image Smoke Detection</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      background: linear-gradient(to bottom, #3e3e3e, #121212);
+      color: white;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #1a1a1a;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.4);
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: #f0a500;
+      text-align: center;
+    }
+
+    .sidebar button {
+      background-color: transparent;
+      border: 1px solid #444;
+      color: white;
+      font-size: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-align: left;
+    }
+
+    .sidebar button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .main-content {
+      margin-left: 250px;
+      flex-grow: 1;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      text-shadow: 1px 1px 5px black;
+    }
+
+    .upload-box {
+      width: 100%;
+      max-width: 700px;
+      background-color: #333;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .upload-box input[type="file"] {
+      display: none;
+    }
+
+    .upload-box label {
+      display: inline-block;
+      padding: 12px 25px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: background 0.3s ease;
+    }
+
+    .upload-box label:hover {
+      background-color: #45a049;
+    }
+
+    #image-container {
+      margin-top: 20px;
+      position: relative;
+      display: none;
+    }
+
+    #image-preview {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border: 3px solid #777;
+      border-radius: 10px;
+    }
+
+    .detection-box {
+      position: absolute;
+      border: 3px solid red;
+      width: 80px;
+      height: 80px;
+      display: none;
+      animation: scan 4s linear infinite;
+    }
+
+    @keyframes scan {
+      0%   { top: 20px; left: 20px; }
+      25%  { top: 40px; left: 60%; }
+      50%  { top: 200px; left: 40%; }
+      75%  { top: 100px; left: 10%; }
+      100% { top: 20px; left: 20px; }
+    }
+
+    .notification {
+      margin-top: 15px;
+      padding: 10px 15px;
+      background-color: #ff4444;
+      color: white;
+      border-radius: 6px;
+      display: none;
+      font-size: 15px;
+      box-shadow: 0 0 10px rgba(255,0,0,0.3);
+    }
+
+    .result-label {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #FFA500;
+      display: none;
+    }
+
+    .result-label span {
+      color: #4CAF50;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        flex-direction: row;
+        justify-content: space-around;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+      }
+
+      .upload-box {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2><i class="fas fa-fire-smoke"></i> Smoke Menu</h2>
+    <button onclick="location.href='smoke.html'"><i class="fas fa-video"></i> Live Smoke Detection</button>
+    <button onclick="location.href='upload.html'"><i class="fas fa-image"></i> Upload Image Detection</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h1><i class="fas fa-cloud-upload-alt"></i> Upload Image Smoke Detection</h1>
+
+    <div class="upload-box">
+      <input type="file" id="fileUpload" accept="image/*" />
+      <label for="fileUpload"><i class="fas fa-upload"></i> Upload Image</label>
+
+      <div id="image-container">
+        <img id="image-preview" src="#" alt="Preview">
+        <div class="detection-box" id="detectBox"></div>
+      </div>
+
+      <div class="result-label" id="resultLabel">Smoke Detected: <span id="status">NO</span></div>
+      <div class="notification" id="notification">⚠️ Smoke has been detected in the uploaded image!</div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    const fileUpload = document.getElementById('fileUpload');
+    const preview = document.getElementById('image-preview');
+    const detectBox = document.getElementById('detectBox');
+    const imageContainer = document.getElementById('image-container');
+    const notification = document.getElementById('notification');
+    const resultLabel = document.getElementById('resultLabel');
+    const statusText = document.getElementById('status');
+
+    fileUpload.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          imageContainer.style.display = 'block';
+          preview.style.display = 'block';
+          detectBox.style.display = 'block';
+
+          // Simulate detection
+          const detected = Math.random() < 0.7; // 70% chance to simulate detection
+          resultLabel.style.display = 'block';
+          statusText.textContent = detected ? 'YES' : 'NO';
+          statusText.style.color = detected ? '#FF4444' : '#4CAF50';
+
+          if (detected) {
+            notification.style.display = 'block';
+          } else {
+            notification.style.display = 'none';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+
+</body>
+</html>
